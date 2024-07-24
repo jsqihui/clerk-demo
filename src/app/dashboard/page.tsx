@@ -1,4 +1,5 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
+import prisma from "@/db";
 
 export default async function Page() {
   // Get the userId from auth() -- if null, the user is not signed in
@@ -9,12 +10,20 @@ export default async function Page() {
   if (!userId || !user) {
     return <div>Not signed in</div>;
   }
+  const db_user = await prisma.user.findUnique({ where: { id: user.id } });
   // Use `user` to render user details or create UI elements
   return (
-    <div className="flex justify-center items-center h-screen">
-      <h1 className="text-4xl font-bold">
+    <div className="flex flex-col justify-center items-center h-screen">
+      <h1 className="text-4xl font-bold text-center mb-4">
         Welcome back, {user.firstName} {user.lastName}
       </h1>
+      <div>
+        {db_user && (
+          <p className="text-center text-lg text-gray-600">
+            {db_user.biography}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
